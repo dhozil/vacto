@@ -72,6 +72,7 @@ Wizard), then paste the returned address.
 | **Privacy** | Terms are **never** published while cooperating; only digests are on-chain |
 | **Anti-correlation** | Commit = `HMAC-SHA256(key=salt, msg=terms)`; the salt is a high-entropy secret, so digests can't be brute-forced |
 | **Identity on-chain** | Optional `commit_identity()` stores `sha256(terms)` + `sha256(salt)` — disputes are re-verified purely from chain state, tamper-proof |
+| **Party acknowledgment** | `acknowledge_party()` records each party's confirmation on-chain — **one-time, irreversible per party** (no double-verification) |
 | **Fair resolution** | `resolve_dispute()` is gated until **both** parties finish their input (statement + evidence) |
 | **Evidence-backed jury** | Each party attaches up to 3 URLs; the jury fetches them on-chain and **only credits claims the fetched pages support**; the exact fetched text is snapshotted by digest |
 | **Anti-stall** | Bounded response / open-dispute / resolution windows with `force_completion()` and `force_resolve_dispute()` so nobody can freeze the contract |
@@ -81,10 +82,11 @@ Wizard), then paste the returned address.
 
 ## Contract surface
 
-**20 methods** (3 read + 17 write):
+**21 methods** (3 read + 18 write):
 
 - **Read** — `get_state`, `is_private`, `am_i_party`
 - **Commit** — `commit_terms`, `commit_identity`, `retract_commit`, `reset_commits`
+- **Acknowledge** — `acknowledge_party` (one-time, irreversible per party)
 - **Close** — `request_completion`, `retract_completion`, `force_completion`
 - **Dispute** — `request_dispute`, `withdraw_dispute_request`, `open_dispute`, `submit_statement`, `request_clarification`, `submit_evidence`, `resolve_dispute`, `force_resolve_dispute`
 - **Partial reveal** — `commit_clauses`, `reveal_clause`

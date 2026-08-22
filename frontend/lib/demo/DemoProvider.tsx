@@ -26,6 +26,7 @@ import {
   demoCommitIdentity,
   demoRetractCompletion,
   demoWithdrawDisputeRequest,
+  demoAcknowledgeParty,
   type DemoContractState,
 } from "./demoState";
 import type { P2PState } from "../contracts/types";
@@ -58,6 +59,7 @@ interface DemoContextType {
   commitIdentity: (termsSha256: string, saltSha256: string) => void;
   retractCompletion: () => void;
   withdrawDisputeRequest: () => void;
+  acknowledgeParty: () => void;
 }
 
 const DemoContext = createContext<DemoContextType | null>(null);
@@ -192,6 +194,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setState(demoWithdrawDisputeRequest(state, sender));
   }, [state, sender]);
 
+  const acknowledgeParty = useCallback(() => {
+    if (!state) return;
+    setState(demoAcknowledgeParty(state, sender));
+  }, [state, sender]);
+
   const commitClauses = useCallback(
     (clauseHashes: string[]) => {
       if (!state) return;
@@ -233,6 +240,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         commitIdentity,
         retractCompletion,
         withdrawDisputeRequest,
+        acknowledgeParty,
       }}
     >
       {children}
@@ -254,6 +262,10 @@ export function demoToP2PState(state: DemoContractState): P2PState {
     salt_sha256: state.salt_sha256,
     identity_a: "0x",
     identity_b: "",
+    ack_a: state.ack_a,
+    ack_b: state.ack_b,
+    ack_a_at: state.ack_a_at,
+    ack_b_at: state.ack_b_at,
     statement_a: state.statement_a,
     statement_b: state.statement_b,
     who_won: state.who_won,

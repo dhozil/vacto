@@ -357,7 +357,13 @@ export default function Home() {
               {/* Right rail */}
               <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
                 <CaseOverview state={state} myRole={myRole} />
-                <ContractVerifier state={state} myRole={myRole} />
+                <ContractVerifier
+                  state={state}
+                  myRole={myRole}
+                  demoAcknowledgeParty={
+                    demo.isActive ? demo.acknowledgeParty : undefined
+                  }
+                />
                 <PrivacyPanel state={state} />
                 <StateTerminal state={state} />
                 {!demo.isActive && (

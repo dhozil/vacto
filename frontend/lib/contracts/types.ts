@@ -22,6 +22,10 @@ export interface P2PState {
   salt_sha256: string;
   identity_a: string;
   identity_b: string;
+  ack_a: string;
+  ack_b: string;
+  ack_a_at: string;
+  ack_b_at: string;
   statement_a: string;
   statement_b: string;
   who_won: string;

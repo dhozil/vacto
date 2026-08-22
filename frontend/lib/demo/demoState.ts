@@ -14,6 +14,10 @@ export interface DemoContractState {
   revealed_by: string;
   terms_sha256: string;
   salt_sha256: string;
+  ack_a: string;
+  ack_b: string;
+  ack_a_at: string;
+  ack_b_at: string;
   statement_a: string;
   statement_b: string;
   who_won: string;
@@ -66,6 +70,10 @@ export function createInitialState(partyA: string, partyB: string): DemoContract
     revealed_by: "",
     terms_sha256: "",
     salt_sha256: "",
+    ack_a: "0",
+    ack_b: "0",
+    ack_a_at: "",
+    ack_b_at: "",
     statement_a: "",
     statement_b: "",
     who_won: "",
@@ -347,10 +355,31 @@ export function demoResetCommits(
   else next.reset_b = "1";
 
   if (next.reset_a === "1" && next.reset_b === "1") {
-    return {
-      ...createInitialState(state.party_a, state.party_b),
-      created_at: state.created_at,
-    };
+    const fresh = createInitialState(state.party_a, state.party_b);
+    fresh.created_at = state.created_at;
+    return fresh;
+  }
+  return next;
+}
+
+/** One-time, irreversible acknowledgment (mirrors acknowledge_party). */
+export function demoAcknowledgeParty(
+  state: DemoContractState,
+  sender: string
+): DemoContractState {
+  if (!isParty(state, sender)) throw new Error("Only parties can acknowledge");
+  if (state.status !== "CREATED" && state.status !== "PARTIAL" && state.status !== "ACTIVE") {
+    throw new Error("Cannot acknowledge in current status");
+  }
+  const next = { ...state };
+  if (sender === state.party_a) {
+    if (next.ack_a === "1") throw new Error("Party A has already acknowledged");
+    next.ack_a = "1";
+    next.ack_a_at = now();
+  } else {
+    if (next.ack_b === "1") throw new Error("Party B has already acknowledged");
+    next.ack_b = "1";
+    next.ack_b_at = now();
   }
   return next;
 }

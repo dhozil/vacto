@@ -660,3 +660,44 @@ export function useCommitIdentity(overrideAddress?: string) {
     commitIdentity: mutation.mutateAsync,
   };
 }
+
+export function useAcknowledgeParty(overrideAddress?: string) {
+  const contract = usePrivateP2PContract(overrideAddress);
+  const { address } = useWallet();
+  const invalidate = useInvalidateState();
+  const [isAcknowledging, setIsAcknowledging] = useState(false);
+
+  const mutation = useMutation({
+    mutationFn: async ({
+      feeLevel = "standard" as FeePresetLevel,
+    }: {
+      feeLevel?: FeePresetLevel;
+    }) => {
+      if (!contract) throw new Error("Contract not configured.");
+      if (!address) throw new Error("Wallet not connected.");
+      setIsAcknowledging(true);
+      return contract.acknowledgeParty(feeLevel);
+    },
+    onSuccess: () => {
+      invalidate();
+      setIsAcknowledging(false);
+      success("Contract acknowledged", {
+        description:
+          "Your acknowledgment is recorded on-chain — irreversible, one-time per party.",
+      });
+    },
+    onError: (err: any) => {
+      console.error("Acknowledge error:", err);
+      setIsAcknowledging(false);
+      error("Failed to acknowledge", {
+        description: err?.message || "Please try again.",
+      });
+    },
+  });
+
+  return {
+    ...mutation,
+    isAcknowledging,
+    acknowledgeParty: mutation.mutateAsync,
+  };
+}

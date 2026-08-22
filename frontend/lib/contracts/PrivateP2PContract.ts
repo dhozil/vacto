@@ -290,6 +290,17 @@ class PrivateP2PContract {
     );
     return this.write("commit_identity", [termsSha256, saltSha256], feePreset);
   }
+
+  async acknowledgeParty(
+    feeLevel: FeePresetLevel = "standard"
+  ): Promise<TransactionReceipt> {
+    const feePreset = await this.estimateFees(
+      "acknowledge_party",
+      [],
+      feeLevel
+    );
+    return this.write("acknowledge_party", [], feePreset);
+  }
 }
 
 export default PrivateP2PContract;

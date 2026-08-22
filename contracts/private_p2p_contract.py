@@ -81,6 +81,13 @@ class PrivateP2PContract(gl.Contract):
     salt_sha256: str
     identity_a: str  # party that first recorded the identity commitment
     identity_b: str  # party that confirmed the identical commitment
+    # One-time party acknowledgment: each party confirms on-chain that the
+    # committed digest + (optional) identity commitments reflect their exact
+    # agreement. Irreversible per party — no double-verification.
+    ack_a: str  # "1" once Party A acknowledged (one-time)
+    ack_b: str  # "1" once Party B acknowledged (one-time)
+    ack_a_at: str  # timestamp of Party A acknowledgment
+    ack_b_at: str  # timestamp of Party B acknowledgment
 
     # Dispute arbitration
     statement_a: str
@@ -181,6 +188,10 @@ class PrivateP2PContract(gl.Contract):
         self.salt_sha256 = ""
         self.identity_a = ""
         self.identity_b = ""
+        self.ack_a = "0"
+        self.ack_b = "0"
+        self.ack_a_at = ""
+        self.ack_b_at = ""
         self.statement_a = ""
         self.statement_b = ""
         self.who_won = ""
@@ -347,6 +358,10 @@ class PrivateP2PContract(gl.Contract):
             "salt_sha256": self.salt_sha256,
             "identity_a": self.identity_a,
             "identity_b": self.identity_b,
+            "ack_a": self.ack_a,
+            "ack_b": self.ack_b,
+            "ack_a_at": self.ack_a_at,
+            "ack_b_at": self.ack_b_at,
             "statement_a": self.statement_a,
             "statement_b": self.statement_b,
             "who_won": self.who_won,
@@ -478,6 +493,39 @@ class PrivateP2PContract(gl.Contract):
             self.identity_b = sender
 
     @gl.public.write
+    def acknowledge_party(self) -> None:
+        """One-time, irreversible acknowledgment by a party.
+
+        Records on-chain that the calling party confirms the contract's
+        immutable commitments (the HMAC digest and, if present, the sha256
+        identity commitments) reflect their exact agreement. Each party can
+        acknowledge only once — attempting it again reverts, so a contract
+        can never be "double-verified".
+        """
+        if not self._is_party():
+            raise gl.vm.UserError("Only the two parties can acknowledge the contract")
+        if self.status not in ("CREATED", "PARTIAL", "ACTIVE"):
+            raise gl.vm.UserError(
+                f"Cannot acknowledge when status is {self.status}"
+            )
+        if not self._both_committed():
+            raise gl.vm.UserError(
+                "Both parties must commit before the contract can be acknowledged"
+            )
+
+        sender = self._sender()
+        if sender == self.party_a:
+            if self.ack_a == "1":
+                raise gl.vm.UserError("Party A has already acknowledged the contract")
+            self.ack_a = "1"
+            self.ack_a_at = self._now_raw()
+        else:
+            if self.ack_b == "1":
+                raise gl.vm.UserError("Party B has already acknowledged the contract")
+            self.ack_b = "1"
+            self.ack_b_at = self._now_raw()
+
+    @gl.public.write
     def retract_commit(self) -> None:
         """A party withdraws ONLY its own commitment (no consent needed).
 
@@ -538,6 +586,10 @@ class PrivateP2PContract(gl.Contract):
             self.salt_sha256 = ""
             self.identity_a = ""
             self.identity_b = ""
+            self.ack_a = "0"
+            self.ack_b = "0"
+            self.ack_a_at = ""
+            self.ack_b_at = ""
             self.reset_a = "0"
             self.reset_b = "0"
             self.status = "CREATED"
