@@ -1,0 +1,289 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ===========================================================================
+   Private P2P Contracts — "Civic legal" design system
+   Calm, professional, business-grade. Pale-moss paper light theme, deep moss
+   primary, brass accent (seal/notary), refined serif display + Inter UI.
+   =========================================================================== */
+
+:root {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Segoe UI Mono",
+    Consolas, "Liberation Mono", monospace;
+
+  /* Pale moss paper / deep ink */
+  --background: #e9efe8;
+  --foreground: #1c2620;
+
+  /* Surfaces */
+  --card: #ffffff;
+  --card-foreground: #1c2620;
+  --popover: #ffffff;
+  --popover-foreground: #1c2620;
+
+  /* Brand — deep moss green */
+  --primary: #1f4d3a;
+  --primary-foreground: #ffffff;
+
+  --secondary: #e6ece5;
+  --secondary-foreground: #33403a;
+
+  --muted: #e3eae2;
+  --muted-foreground: #6b746c;
+
+  /* Brass accent (seal / verdict / protected) */
+  --accent: #9c6b2e;
+  --accent-foreground: #ffffff;
+
+  --blue: #2b5f74;
+  --blue-foreground: #ffffff;
+
+  /* Semantic */
+  --success: #237a54;
+  --success-foreground: #ffffff;
+  --warning: #b57730;
+  --warning-foreground: #ffffff;
+  --destructive: #af3a2f;
+  --destructive-foreground: #ffffff;
+
+  /* Borders & focus */
+  --border: #dce3d9;
+  --input: #d5ddd2;
+  --ring: #1f4d3a;
+
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: #0f1310;
+  --foreground: #e7ebe3;
+  --card: #171b17;
+  --card-foreground: #e7ebe3;
+  --popover: #171b17;
+  --popover-foreground: #e7ebe3;
+  --primary: #74ae90;
+  --primary-foreground: #101512;
+  --secondary: #232922;
+  --secondary-foreground: #e7ebe3;
+  --muted: #20261f;
+  --muted-foreground: #a4ada0;
+  --accent: #caa05f;
+  --accent-foreground: #131007;
+  --blue: #6aa6b8;
+  --blue-foreground: #101512;
+  --success: #56aa79;
+  --success-foreground: #0d1712;
+  --warning: #d39258;
+  --warning-foreground: #150f07;
+  --destructive: #d16b60;
+  --destructive-foreground: #180c0a;
+  --border: #28302a;
+  --input: #313a32;
+  --ring: #74ae90;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-blue: var(--blue);
+  --color-blue-foreground: var(--blue-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-sans);
+  --font-serif: var(--font-serif);
+  --font-mono: var(--font-mono);
+  --radius-sm: calc(var(--radius) - 6px);
+  --radius-md: calc(var(--radius) - 3px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--primary) 18%, transparent);
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Font helpers
+---------------------------------------------------------------------------- */
+@layer utilities {
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono) !important;
+  }
+
+  /* Small-caps section label (legal document feel) */
+  .section-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Surfaces & brand utilities
+---------------------------------------------------------------------------- */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-rise {
+    animation: riseIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes riseIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px) scale(0.995);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Deep-moss brand gradient (sober replacement for the old purple-pink) */
+  .gradient-brand {
+    background: linear-gradient(135deg, #265c44 0%, #15321f 100%);
+  }
+
+  .gradient-brand-soft {
+    background: linear-gradient(135deg, #ecf2ec 0%, #e4ece5 100%);
+  }
+
+  /* Signature "contract sheet" card */
+  .brand-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 1px 2px 0 rgb(24 20 12 / 0.04),
+      0 4px 16px -8px rgb(24 20 12 / 0.06);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .brand-card-hover:hover {
+    border-color: color-mix(in oklab, var(--primary) 32%, var(--border));
+    box-shadow: 0 2px 4px 0 rgb(24 20 12 / 0.05),
+      0 14px 32px -12px rgb(24 20 12 / 0.14);
+    transform: translateY(-1px);
+  }
+
+  /* Sticky top bar */
+  .brand-navbar {
+    background: color-mix(in oklab, var(--card) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Terminal-style block for on-chain state */
+  .terminal {
+    background: #14191f;
+    color: #d6e2ee;
+    border: 1px solid #25313d;
+    border-radius: var(--radius-lg);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.04);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Background — quiet warm paper with a faint "document" glow
+---------------------------------------------------------------------------- */
+html {
+  background-color: var(--background);
+  background-image: radial-gradient(
+      ellipse 90% 40% at 50% -8%,
+      color-mix(in oklab, var(--primary) 6%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 55% 35% at 100% 0%,
+      color-mix(in oklab, var(--accent) 5%, transparent) 0%,
+      transparent 55%
+    );
+  background-attachment: fixed;
+  overscroll-behavior: none;
+  min-height: 100vh;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+main {
+  position: relative;
+}
+
+/* Faint horizontal rule texture for paper feel */
+.paper-grid {
+  background-image: linear-gradient(
+      to right,
+      color-mix(in oklab, var(--foreground) 3%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--foreground) 3%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 32px 32px;
+}
