@@ -134,11 +134,14 @@ cd frontend
 npm run dev                        # local → http://localhost:3000
 ```
 
-**Vercel** is pre-configured (`vercel.json` with `rootDirectory: "frontend"`):
+**Vercel** is pre-configured — the app lives in `frontend/`, so set the project's
+**Root Directory = `frontend`** (Project Settings → General → Root Directory, or choose
+it during repo import). This cannot be set in `vercel.json` — that file only holds
+`framework` / build commands:
 
 ```bash
 npx vercel login
-npx vercel --prod
+npx vercel --prod         # run from the repo root; Vercel uses Root Directory=frontend
 ```
 
 Set these env vars (see `frontend/.env.example`):
