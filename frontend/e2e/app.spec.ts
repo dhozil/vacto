@@ -111,3 +111,20 @@ test("contract bar: invalid address blocked, reset unloads", async ({ page }) =>
   await page.getByRole("button", { name: "Load contract" }).click();
   await expect(page.getByTitle(/Unload this contract/)).toBeVisible();
 });
+
+test("loaded contract shows its on-chain contents (docket + overview)", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Start Demo" }).click();
+
+  // Once a contract is loaded, the full on-chain record is visible:
+  await expect(page.getByRole("heading", { name: "Case state" })).toBeVisible();
+  await expect(page.getByText("Commit terms", { exact: true })).toBeVisible();
+  await expect(page.getByText("Contract of record", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Party A:/).first()).toBeVisible();
+  await expect(page.getByText(/Party B:/).first()).toBeVisible();
+
+  // The raw on-chain state is inspectable in the terminal.
+  await expect(page.getByText("On-chain state")).toBeVisible();
+});

@@ -29,7 +29,7 @@ export function AuditTrail({ contractAddress }: AuditTrailProps) {
     setRecords([]);
   };
 
-  const explorerUrl = `https://studio.genlayer.com/tx/`;
+  const explorerUrl = `https://explorer-studio.genlayer.com/tx/`;
 
   return (
     <div className="brand-card p-5">

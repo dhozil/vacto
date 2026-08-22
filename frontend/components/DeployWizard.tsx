@@ -391,7 +391,7 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
                   <Copy className="h-4 w-4" />
                 </button>
                 <a
-                  href={`https://studio.genlayer.com/contract/${deployedAddress}`}
+                  href={`https://explorer-studio.genlayer.com/contracts/${deployedAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1 cursor-pointer rounded hover:bg-muted transition-colors"
