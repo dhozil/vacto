@@ -110,6 +110,15 @@ export function ContractAddressBar({ value, onChange }: Props) {
               Address must be a valid 0x address (42 characters).
             </p>
           )}
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            Only the address of a <b>Vacto contract</b> (deployed from{" "}
+            <code className="font-mono text-foreground">
+              contracts/private_p2p_contract.py
+            </code>
+            ) loads here. The app verifies it exposes the Pacto{" "}
+            <code className="font-mono">get_state</code> schema — other contracts
+            will show a clear error.
+          </p>
         </div>
         <Button
           variant="default"

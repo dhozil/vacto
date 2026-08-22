@@ -22,21 +22,48 @@ terms, collects each party's statement **and** on-chain evidence, then lets the
 GenLayer validator network run an impartial AI arbitration — with enforceable,
 replayable proof.
 
-## High-level flow
+## How it works
 
 ```
  Party A ── HMAC(salt, terms) ──► commit_a ─┐
                                             ├──► on-chain stores digests only
  Party B ── HMAC(salt, terms) ──► commit_b ─┘
 
-  1. Both parties commit → status ACTIVE. Terms stay OFF-chain.
-  2. Happy path: both approve request_completion() → RESOLVED, private forever.
-  3. Dispute: request_dispute() → open_dispute(terms, salt) reveals the terms.
-  4. Each party submits a statement + evidence URLs (≤3, fetched on-chain).
-  5. Resolve unlocks only when BOTH parties finish input →
-     run_nondet_unsafe() lets every validator re-run the LLM and reach
-     consensus on who_won (A / B / DRAW).
+  1. Commit in secret   — both parties commit the same HMAC-SHA256 digest.
+                          The real terms are never stored on-chain.
+  2. Stay private       — while cooperating, both approve request_completion()
+                          and the matter closes with full confidentiality.
+  3. Dispute unlocks    — request_dispute() locks closure; open_dispute(terms,
+                          salt) verifies the reveal against the committed digest
+                          (and the on-chain sha256 identity commitment) and
+                          publishes the terms.
+  4. Each party inputs  — each submits its own statement and up to 3 evidence
+                          URLs. Cooperative resolution only unlocks when BOTH
+                          parties complete their input (evidence may be "none").
+  5. AI jury consensus  — resolve_dispute() runs inside run_nondet_unsafe():
+                          validators fetch the evidence pages on-chain, re-run
+                          the LLM, and must agree exactly on who_won (A / B / DRAW).
+                          Verdict + reasoning are stored; fetched text is
+                          snapshotted by digest for later verification.
 ```
+
+### Which contracts can you load?
+
+The dApp only loads **Pacto contracts** — i.e. contracts deployed from
+[`contracts/private_p2p_contract.py`](./contracts/private_p2p_contract.py) on the
+configured GenLayer network (by default GenLayer Studio).
+
+When you paste an address into **Contract of record**, the app:
+
+1. validates it is a `0x…` address,
+2. calls `get_state()` on it,
+3. **checks the schema** — it must expose `party_a`, `party_b`, `status`, and
+   `commit_a`. If any key is missing or the call fails, you get a clear error:
+   *"This address is not a compatible Vacto contract."*
+
+Any other (non-Pacto) contract — or an address from a different network — will
+**not** load. Deploy the contract first (`genlayer deploy` or the in-app Deploy
+Wizard), then paste the returned address.
 
 ## Features
 

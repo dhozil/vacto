@@ -22,7 +22,7 @@ import { DeployWizard } from "@/components/DeployWizard";
 import { AuditTrail } from "@/components/AuditTrail";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Lock, Unlock, Loader2, Landmark, Rocket, Play, StopCircle, RefreshCw, Users } from "lucide-react";
+import { Lock, Unlock, Loader2, Landmark, Rocket, Play, StopCircle, RefreshCw, Users, FileQuestion } from "lucide-react";
 import { safeStorage } from "@/lib/utils/safeStorage";
 
 const STORAGE_KEY = "p2p_contract_address";
@@ -39,9 +39,8 @@ export default function Home() {
     }
   }, [demo.isActive]);
 
-  const { data: realState, isLoading, isError } = useContractState(
-    demo.isActive ? undefined : contractAddress
-  );
+  const { data: realState, isLoading, isError, error: contractError } =
+    useContractState(demo.isActive ? undefined : contractAddress);
 
   const state = demo.isActive && demo.state ? demoToP2PState(demo.state) : realState;
   const myRole = demo.isActive
@@ -158,6 +157,38 @@ export default function Home() {
           )}
         </header>
 
+        <section className="brand-card p-5 sm:p-6">
+          <div className="flex items-center gap-2 mb-3">
+            <FileQuestion className="h-4 w-4 text-[var(--accent)]" />
+            <p className="section-label">How it works</p>
+          </div>
+          <ol className="grid gap-3 sm:grid-cols-4 text-xs">
+            {[
+              {
+                t: "1 · Commit in secret",
+                d: "Both parties commit the same HMAC-SHA256 digest — the real terms never touch the chain.",
+              },
+              {
+                t: "2 · Stay private",
+                d: "Cooperation closes the matter privately; nothing sensitive is ever revealed.",
+              },
+              {
+                t: "3 · Dispute unlocks",
+                d: "If a dispute arises, the terms are revealed, both sides submit statements + up to 3 evidence URLs.",
+              },
+              {
+                t: "4 · AI jury rules",
+                d: "GenLayer validators fetch the evidence on-chain and agree on who_won (A/B/DRAW).",
+              },
+            ].map((s) => (
+              <li key={s.t} className="rounded-lg border border-border bg-muted/30 p-3 space-y-1">
+                <span className="font-semibold text-foreground">{s.t}</span>
+                <p className="text-muted-foreground leading-relaxed">{s.d}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
         <ContractAddressBar value={contractAddress} onChange={handleAddressChange} />
 
         {!hasState ? (
@@ -184,7 +215,17 @@ export default function Home() {
                   Could not load the contract
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Check the address and that you are connected to the GenLayer network.
+                  {contractError?.message && (
+                    <span className="block text-[var(--destructive)]">
+                      {contractError.message}
+                    </span>
+                  )}
+                  Make sure the address is a{" "}
+                  <code className="font-mono">
+                    private_p2p_contract.py
+                  </code>{" "}
+                  (Vacto) contract on the configured GenLayer network, and that
+                  your wallet is connected.
                 </p>
               </div>
             ) : (
@@ -193,10 +234,12 @@ export default function Home() {
                   No contract is loaded yet
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Paste a deployed contract address above to begin a private agreement
-                  — or deploy{" "}
-                  <code className="font-mono">contracts/private_p2p_contract.py</code>{" "}
-                  with <code className="font-mono">genlayer deploy</code>.
+                  Paste the address of a <b>Vacto contract</b> (deployed from{" "}
+                  <code className="font-mono">
+                    contracts/private_p2p_contract.py
+                  </code>
+                  ) above to open a private agreement — or deploy one from the
+                  button below. Only Pacto-compatible contracts load.
                 </p>
               </div>
             )}

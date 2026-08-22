@@ -102,18 +102,36 @@ class PrivateP2PContract {
 
   // ------------------------------------------------------------------ views
 
-  async getState(): Promise<P2PState | null> {
+  async getState(): Promise<P2PState> {
     try {
       const state: any = await this.client.readContract({
         address: this.contractAddress,
         functionName: "get_state",
         args: [],
       });
-      if (!state) return null;
+      if (!state || typeof state !== "object") {
+        throw new Error(
+          "This address returned no contract state — is it the right network?"
+        );
+      }
+      // Only a Pacto (private_p2p_contract.py) deployment exposes this schema.
+      // A random contract would either lack get_state() or return a different
+      // shape, which would otherwise fail confusingly downstream.
+      if (
+        typeof state.party_a !== "string" ||
+        typeof state.party_b !== "string" ||
+        typeof state.status !== "string" ||
+        typeof state.commit_a !== "string"
+      ) {
+        throw new Error(
+          "This address is not a compatible Vacto contract (get_state schema mismatch). " +
+            "Deploy contracts/private_p2p_contract.py to load it."
+        );
+      }
       return state as P2PState;
     } catch (error) {
       console.error("Error fetching contract state:", error);
-      return null;
+      throw error;
     }
   }
 
