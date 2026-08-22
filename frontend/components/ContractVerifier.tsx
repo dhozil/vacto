@@ -14,6 +14,7 @@ import { Button } from "./ui/button";
 interface Props {
   state: P2PState;
   myRole: "A" | "B" | null;
+  contractAddress?: string;
   demoAcknowledgeParty?: () => void;
 }
 
@@ -23,9 +24,14 @@ interface Props {
  * irreversible on-chain acknowledgment. Anomalies (mismatches) are shown as
  * red flags, so nothing on-chain can be silently altered.
  */
-export function ContractVerifier({ state, myRole, demoAcknowledgeParty }: Props) {
+export function ContractVerifier({
+  state,
+  myRole,
+  contractAddress,
+  demoAcknowledgeParty,
+}: Props) {
   const { address } = useWallet();
-  const { acknowledgeParty, isAcknowledging } = useAcknowledgeParty();
+  const { acknowledgeParty, isAcknowledging } = useAcknowledgeParty(contractAddress);
   const isDemo = !!demoAcknowledgeParty;
   const [terms, setTerms] = useState("");
   const [salt, setSalt] = useState("");

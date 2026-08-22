@@ -303,6 +303,7 @@ export default function Home() {
                 <CommitPanel
                   state={state}
                   myRole={myRole}
+                  contractAddress={contractAddress}
                   demoCommitTerms={demo.isActive ? demo.commitTerms : undefined}
                   demoCommitIdentity={
                     demo.isActive ? demo.commitIdentity : undefined
@@ -311,6 +312,7 @@ export default function Home() {
                 <ActionsPanel
                   state={state}
                   myRole={myRole}
+                  contractAddress={contractAddress}
                   demoRequestCompletion={
                     demo.isActive ? demo.requestCompletion : undefined
                   }
@@ -336,6 +338,7 @@ export default function Home() {
                 <DisputePanel
                   state={state}
                   myRole={myRole}
+                  contractAddress={contractAddress}
                   demoOpenDispute={
                     demo.isActive ? demo.openDispute : undefined
                   }
@@ -360,6 +363,7 @@ export default function Home() {
                 <ContractVerifier
                   state={state}
                   myRole={myRole}
+                  contractAddress={contractAddress}
                   demoAcknowledgeParty={
                     demo.isActive ? demo.acknowledgeParty : undefined
                   }

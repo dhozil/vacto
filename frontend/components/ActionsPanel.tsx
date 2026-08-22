@@ -32,6 +32,7 @@ import { useState } from "react";
 interface Props {
   state: P2PState;
   myRole: "A" | "B" | null;
+  contractAddress?: string;
   demoRequestCompletion?: () => void;
   demoRequestDispute?: () => void;
   demoCommitClauses?: (clauseHashes: string[]) => void;
@@ -44,6 +45,7 @@ interface Props {
 export function ActionsPanel({
   state,
   myRole,
+  contractAddress,
   demoRequestCompletion,
   demoRequestDispute,
   demoCommitClauses,
@@ -53,16 +55,16 @@ export function ActionsPanel({
   demoWithdrawDisputeRequest,
 }: Props) {
   const { address } = useWallet();
-  const { requestCompletion, isApproving } = useRequestCompletion();
+  const { requestCompletion, isApproving } = useRequestCompletion(contractAddress);
   const { retractCompletion, isRetracting: isRetractingApproval } =
-    useRetractCompletion();
-  const { requestDispute, isRequesting } = useRequestDispute();
-  const { withdrawDisputeRequest, isWithdrawing } = useWithdrawDisputeRequest();
-  const { resetCommits, isResetting } = useResetCommits();
-  const { retractCommit, isRetracting: isRetractingCommit } = useRetractCommit();
-  const { forceCompletion, isForcing } = useForceCompletion();
-  const { commitClauses, isRecording } = useCommitClauses();
-  const { revealClause, isRevealing } = useRevealClause();
+    useRetractCompletion(contractAddress);
+  const { requestDispute, isRequesting } = useRequestDispute(contractAddress);
+  const { withdrawDisputeRequest, isWithdrawing } = useWithdrawDisputeRequest(contractAddress);
+  const { resetCommits, isResetting } = useResetCommits(contractAddress);
+  const { retractCommit, isRetracting: isRetractingCommit } = useRetractCommit(contractAddress);
+  const { forceCompletion, isForcing } = useForceCompletion(contractAddress);
+  const { commitClauses, isRecording } = useCommitClauses(contractAddress);
+  const { revealClause, isRevealing } = useRevealClause(contractAddress);
   const isDemo = !!demoRequestCompletion;
   const canAct = isDemo || !!address;
 

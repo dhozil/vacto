@@ -23,6 +23,7 @@ import { DeadlineCountdown } from "./DeadlineCountdown";
 interface Props {
   state: P2PState;
   myRole: "A" | "B" | null;
+  contractAddress?: string;
   demoOpenDispute?: (terms: string) => void;
   demoSubmitStatement?: (statement: string) => void;
   demoRequestClarification?: () => void;
@@ -33,6 +34,7 @@ interface Props {
 export function DisputePanel({
   state,
   myRole,
+  contractAddress,
   demoOpenDispute,
   demoSubmitStatement,
   demoRequestClarification,
@@ -40,13 +42,13 @@ export function DisputePanel({
   demoSubmitEvidence,
 }: Props) {
   const { address } = useWallet();
-  const { openDispute, isOpening } = useOpenDispute();
-  const { submitStatement, isSubmitting } = useSubmitStatement();
-  const { resolveDispute, isResolving } = useResolveDispute();
-  const { forceResolveDispute, isForcing } = useForceResolveDispute();
+  const { openDispute, isOpening } = useOpenDispute(contractAddress);
+  const { submitStatement, isSubmitting } = useSubmitStatement(contractAddress);
+  const { resolveDispute, isResolving } = useResolveDispute(contractAddress);
+  const { forceResolveDispute, isForcing } = useForceResolveDispute(contractAddress);
   const { requestClarification, isRequesting: isClarifying } =
-    useRequestClarification();
-  const { submitEvidence, isSubmittingEvidence } = useSubmitEvidence();
+    useRequestClarification(contractAddress);
+  const { submitEvidence, isSubmittingEvidence } = useSubmitEvidence(contractAddress);
   const isDemo = !!demoOpenDispute;
   const canAct = isDemo || !!address;
 

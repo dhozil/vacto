@@ -28,14 +28,15 @@ const STORAGE_KEY = "p2p_pending_commit";
 interface Props {
   state: P2PState;
   myRole: "A" | "B" | null;
+  contractAddress?: string;
   demoCommitTerms?: (commit: string) => void;
   demoCommitIdentity?: (termsSha256: string, saltSha256: string) => void;
 }
 
-export function CommitPanel({ state, myRole, demoCommitTerms, demoCommitIdentity }: Props) {
+export function CommitPanel({ state, myRole, contractAddress, demoCommitTerms, demoCommitIdentity }: Props) {
   const { address } = useWallet();
-  const { commitTerms, isCommitting } = useCommitTerms();
-  const { commitIdentity, isCommittingIdentity } = useCommitIdentity();
+  const { commitTerms, isCommitting } = useCommitTerms(contractAddress);
+  const { commitIdentity, isCommittingIdentity } = useCommitIdentity(contractAddress);
   const isDemo = !!demoCommitTerms;
 
   const [terms, setTerms] = useState("");
