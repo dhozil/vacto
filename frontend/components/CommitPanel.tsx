@@ -21,6 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { ConfirmDialog } from "./ui/confirm-dialog";
 import { TemplatePicker } from "./TemplatePicker";
 import { safeStorage } from "@/lib/utils/safeStorage";
+import { success } from "@/lib/utils/toast";
 
 const STORAGE_KEY = "p2p_pending_commit";
 
@@ -97,6 +98,9 @@ export function CommitPanel({ state, myRole, demoCommitTerms, demoCommitIdentity
     await navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+    success("Commit digest copied", {
+      description: "Send this to your counterparty — never the terms.",
+    });
   };
 
   const handleCommit = async () => {
@@ -276,7 +280,7 @@ export function CommitPanel({ state, myRole, demoCommitTerms, demoCommitIdentity
               </span>
               <button
                 onClick={() => copyHash(computedHash)}
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 {copied ? (
                   <Check className="h-3 w-3" />

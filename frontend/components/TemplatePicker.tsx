@@ -55,7 +55,7 @@ export function TemplatePicker({ onApply }: TemplatePickerProps) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between text-left"
+        className="flex w-full cursor-pointer items-center justify-between text-left"
         aria-expanded={open}
       >
         <span className="flex items-center gap-2 text-sm font-medium text-foreground">
@@ -78,7 +78,7 @@ export function TemplatePicker({ onApply }: TemplatePickerProps) {
                 type="button"
                 onClick={() => selectTemplate(t)}
                 className={
-                  "rounded-lg border p-3 text-left transition-colors " +
+                  "rounded-lg border p-3 cursor-pointer text-left transition-colors " +
                   (selected?.id === t.id
                     ? "border-[var(--accent)] bg-[var(--accent)]/5"
                     : "border-border hover:bg-muted/50")

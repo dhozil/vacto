@@ -94,7 +94,7 @@ export function ContractAddressBar({ value, onChange }: Props) {
               <button
                 type="button"
                 onClick={() => setShowHistory(!showHistory)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-muted transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 cursor-pointer rounded hover:bg-muted transition-colors"
                 title="Recent contracts"
                 aria-label="Toggle recent contracts"
               >
@@ -145,13 +145,13 @@ export function ContractAddressBar({ value, onChange }: Props) {
                     apply(addr);
                     setShowHistory(false);
                   }}
-                  className="font-mono hover:text-foreground transition-colors"
+                  className="font-mono cursor-pointer hover:text-foreground transition-colors"
                 >
                   {addr.slice(0, 6)}...{addr.slice(-4)}
                 </button>
                 <button
                   onClick={() => removeFromHistory(addr)}
-                  className="p-0.5 hover:text-[var(--destructive)] transition-colors"
+                  className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
                 >
                   <X className="h-3 w-3" />
                 </button>

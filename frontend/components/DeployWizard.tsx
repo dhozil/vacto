@@ -20,6 +20,7 @@ import { Label } from "./ui/label";
 import { Badge } from "./ui/badge";
 import { useWallet } from "@/lib/genlayer/wallet";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
+import { success, error as toastError } from "@/lib/utils/toast";
 
 interface DeployWizardProps {
   isOpen: boolean;
@@ -112,9 +113,10 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
   };
 
   const copyAddress = () => {
-    navigator.clipboard.writeText(deployedAddress).catch(() => {
-      console.error("Failed to copy address");
-    });
+    navigator.clipboard
+      .writeText(deployedAddress)
+      .then(() => success("Contract address copied"))
+      .catch(() => toastError("Failed to copy address"));
   };
 
   const close = () => {
@@ -146,7 +148,7 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
           </div>
           <button
             onClick={close}
-            className="p-1 rounded-md hover:bg-muted transition-colors"
+            className="p-1 cursor-pointer rounded-md hover:bg-muted transition-colors"
             aria-label="Close deploy wizard"
           >
             <X className="h-4 w-4" />
@@ -305,7 +307,7 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
                 </span>
                 <button
                   onClick={copyAddress}
-                  className="p-1 rounded hover:bg-muted transition-colors"
+                  className="p-1 cursor-pointer rounded hover:bg-muted transition-colors"
                 >
                   <Copy className="h-4 w-4" />
                 </button>
@@ -313,7 +315,7 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
                   href={`https://studio.genlayer.com/contract/${deployedAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-1 rounded hover:bg-muted transition-colors"
+                  className="p-1 cursor-pointer rounded hover:bg-muted transition-colors"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </a>

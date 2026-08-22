@@ -26,7 +26,7 @@ export function StateTerminal({ state }: { state: P2PState }) {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-muted/50"
+        className="flex w-full cursor-pointer items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-muted/50"
         aria-expanded={open}
       >
         <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export function StateTerminal({ state }: { state: P2PState }) {
               <button
                 type="button"
                 onClick={copy}
-                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-[#8ba3b8] transition-colors hover:bg-white/10 hover:text-white"
+                className="flex cursor-pointer items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-[#8ba3b8] transition-colors hover:bg-white/10 hover:text-white"
               >
                 {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                 {copied ? "copied" : "copy"}
