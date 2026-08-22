@@ -91,6 +91,36 @@ Wizard), then paste the returned address.
 - **Dispute** — `request_dispute`, `withdraw_dispute_request`, `open_dispute`, `submit_statement`, `request_clarification`, `submit_evidence`, `resolve_dispute`, `force_resolve_dispute`
 - **Partial reveal** — `commit_clauses`, `reveal_clause`
 
+## Contract reference
+
+Full source: [`contracts/private_p2p_contract.py`](./contracts/private_p2p_contract.py)
+(Intelligent Contract for the GenVM).
+
+**Core state** (all exposed by `get_state`, immutable once set):
+`party_a/b`, `commit_a/b` (HMAC digests), `terms_sha256`/`salt_sha256` (public
+identity), `identity_a/b`, `ack_a/b` (+ timestamps), `terms` (revealed only on
+dispute), `statement_a/b` (+ versions), `evidence_a/b`, `evidence_reviewed_*`,
+`evidence_digests` (sha256 of fetched text), `who_won`/`verdict`/`reasoning`,
+`resolve_attempts`, and every anti-stall timestamp/deadline.
+
+**Key excerpts** (how the guarantees are enforced):
+
+```python
+# keyed commitment (anti-correlation, no plaintext on-chain)
+return hmac.new(salt.encode("utf-8"), terms.encode("utf-8"), hashlib.sha256).hexdigest()
+
+# dispute reveal is verified against the committed + identity hashes
+if self._commit_hash(terms, salt) != self.commit_a:
+    raise gl.vm.UserError("Revealed terms do not match the committed hash")
+if self.terms_sha256 and hashlib.sha256(terms.encode()).hexdigest() != self.terms_sha256:
+    raise gl.vm.UserError("Revealed terms do not match the committed identity (sha256)")
+
+# AI jury: validators re-run and must agree ONLY on the decision field
+my_winner = str(my_ruling.get("who_won", "")).strip().upper()
+their_winner = str(their_ruling.get("who_won", "")).strip().upper()
+return my_winner in ("A", "B", "DRAW") and my_winner == their_winner
+```
+
 ## Security model
 
 - Commit digests are validated `64-hex`; all inputs are length-capped to bound gas and prompt size.
@@ -205,9 +235,10 @@ Set these env vars (see `frontend/.env.example`):
 ## Status
 
 - Live on GenLayer Studio (verified end-to-end, including real AI arbitration).
-- Contract: **20 methods**, lint-clean, no bare-exception warnings.
+- Contract: **21 methods** (3 read + 18 write), lint-clean, no bare-exception warnings.
+- Tests: **93 contract** (direct GenVM) + **63 frontend** + **4 Playwright E2E**.
 - Roadmap notes: migrate to the newer runner's `init_fetch_pages`/`fetch_pages`
-  once available for canonical page pinning; add Playwright E2E.
+  once available for canonical page pinning.
 
 ---
 
