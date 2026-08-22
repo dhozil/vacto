@@ -1,12 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileSignature, ArrowRight, Loader2, History, X } from "lucide-react";
+import { FileSignature, ArrowRight, Loader2, History, X, RotateCcw } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { getContractAddress } from "@/lib/genlayer/client";
 import { isValidEthereumAddress, normalizeAddress } from "@/lib/contracts/address";
 import { safeStorage } from "@/lib/utils/safeStorage";
+import {
+  getDeployedContracts,
+  removeDeployedContract,
+  type DeployedContract,
+} from "@/lib/contracts/myContracts";
 
 const KEY = "p2p_contract_address";
 const HISTORY_KEY = "p2p_contract_history";
@@ -22,6 +27,7 @@ export function ContractAddressBar({ value, onChange }: Props) {
   const [busy, setBusy] = useState(false);
   const [validateError, setValidateError] = useState("");
   const [history, setHistory] = useState<string[]>([]);
+  const [deployed, setDeployed] = useState<DeployedContract[]>([]);
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
@@ -35,7 +41,15 @@ export function ContractAddressBar({ value, onChange }: Props) {
         // ignore
       }
     }
+    setDeployed(getDeployedContracts());
   }, [envAddress]);
+
+  const handleReset = () => {
+    safeStorage.remove(KEY);
+    setDraft(envAddress || "");
+    setValidateError("");
+    onChange("");
+  };
 
   const addToHistory = (addr: string) => {
     if (!addr) return;
@@ -120,53 +134,111 @@ export function ContractAddressBar({ value, onChange }: Props) {
             will show a clear error.
           </p>
         </div>
-        <Button
-          variant="default"
-          className="sm:h-10"
-          onClick={() => apply(draft)}
-          disabled={
-            busy ||
-            !draft.trim() ||
-            (draft.trim().length > 0 && !isValidEthereumAddress(draft))
-          }
-        >
-          {busy ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <ArrowRight className="h-4 w-4" />
-          )}
-          Load contract
-        </Button>
+        <div className="flex items-center gap-2 sm:self-center">
+          <Button
+            variant="default"
+            className="sm:h-10"
+            onClick={() => apply(draft)}
+            disabled={
+              busy ||
+              !draft.trim() ||
+              (draft.trim().length > 0 && !isValidEthereumAddress(draft))
+            }
+          >
+            {busy ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ArrowRight className="h-4 w-4" />
+            )}
+            Load contract
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleReset}
+            disabled={busy || (!value && !draft)}
+            title="Unload this contract and clear the saved address"
+            className="sm:h-10 px-2"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
-      {showHistory && history.length > 0 && (
+      {showHistory && (deployed.length > 0 || history.length > 0) && (
         <div className="mt-3 space-y-2">
-          <p className="text-xs text-muted-foreground">Recent contracts:</p>
-          <div className="flex flex-wrap gap-2">
-            {history.map((addr) => (
-              <div
-                key={addr}
-                className="flex items-center gap-1 px-2 py-1 rounded border border-border bg-muted/50 text-xs"
-              >
-                <button
-                  onClick={() => {
-                    setDraft(addr);
-                    apply(addr);
-                    setShowHistory(false);
-                  }}
-                  className="font-mono cursor-pointer hover:text-foreground transition-colors"
-                >
-                  {addr.slice(0, 6)}...{addr.slice(-4)}
-                </button>
-                <button
-                  onClick={() => removeFromHistory(addr)}
-                  className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
-                >
-                  <X className="h-3 w-3" />
-                </button>
+          {deployed.length > 0 && (
+            <>
+              <p className="text-xs text-muted-foreground">
+                Your deployments:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {deployed.map((d) => (
+                  <div
+                    key={d.address}
+                    className="flex items-center gap-1 px-2 py-1 rounded border border-[var(--accent)]/30 bg-[var(--accent)]/5 text-xs"
+                  >
+                    <button
+                      onClick={() => {
+                        setDraft(d.address);
+                        apply(d.address);
+                        setShowHistory(false);
+                      }}
+                      title={d.purpose}
+                      className="font-mono cursor-pointer hover:text-foreground transition-colors"
+                    >
+                      {d.address.slice(0, 6)}...{d.address.slice(-4)}
+                    </button>
+                    {d.purpose && (
+                      <span className="ml-1 truncate max-w-[140px] text-muted-foreground">
+                        · {d.purpose}
+                      </span>
+                    )}
+                    <button
+                      onClick={() => {
+                        removeDeployedContract(d.address);
+                        setDeployed(getDeployedContracts());
+                      }}
+                      aria-label="Forget this deployment"
+                      className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
+          {history.length > 0 && (
+            <>
+              <p className="text-xs text-muted-foreground">Recent contracts:</p>
+              <div className="flex flex-wrap gap-2">
+                {history.map((addr) => (
+                  <div
+                    key={addr}
+                    className="flex items-center gap-1 px-2 py-1 rounded border border-border bg-muted/50 text-xs"
+                  >
+                    <button
+                      onClick={() => {
+                        setDraft(addr);
+                        apply(addr);
+                        setShowHistory(false);
+                      }}
+                      className="font-mono cursor-pointer hover:text-foreground transition-colors"
+                    >
+                      {addr.slice(0, 6)}...{addr.slice(-4)}
+                    </button>
+                    <button
+                      onClick={() => removeFromHistory(addr)}
+                      className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       )}
 

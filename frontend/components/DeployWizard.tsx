@@ -17,9 +17,11 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
 import { Badge } from "./ui/badge";
 import { useWallet } from "@/lib/genlayer/wallet";
 import { useFocusTrap } from "@/lib/hooks/useFocusTrap";
+import { addDeployedContract } from "@/lib/contracts/myContracts";
 import { success, error as toastError } from "@/lib/utils/toast";
 
 interface DeployWizardProps {
@@ -34,6 +36,8 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
   const { address, isConnected } = useWallet();
   const [step, setStep] = useState<Step>("configure");
   const [partyB, setPartyB] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [refLinks, setRefLinks] = useState("");
   const [deployedAddress, setDeployedAddress] = useState("");
   const [error, setError] = useState("");
   const [isDeploying, setIsDeploying] = useState(false);
@@ -42,6 +46,8 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
     if (isOpen) {
       setStep("configure");
       setPartyB("");
+      setPurpose("");
+      setRefLinks("");
       setDeployedAddress("");
       setError("");
       setIsDeploying(false);
@@ -49,10 +55,21 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
   }, [isOpen]);
 
   const isValidAddress = (addr: string) => /^0x[0-9a-fA-F]{40}$/.test(addr);
-  const canProceed = step === "configure" && isValidAddress(partyB) && partyB.toLowerCase() !== address?.toLowerCase();
+  const parseLinks = (raw: string): string[] =>
+    raw
+      .split(/[\n,]+/)
+      .map((u) => u.trim())
+      .filter((u) => /^https?:\/\//.test(u))
+      .slice(0, 3);
+  const links = parseLinks(refLinks);
+  const canProceed =
+    step === "configure" &&
+    isValidAddress(partyB) &&
+    partyB.toLowerCase() !== address?.toLowerCase() &&
+    purpose.trim().length >= 3;
 
   const handleDeploy = async () => {
-    if (!address || !partyB) return;
+    if (!address || !partyB || !purpose.trim()) return;
 
     setStep("deploying");
     setIsDeploying(true);
@@ -101,6 +118,14 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
       }
 
       setDeployedAddress(contractAddr);
+      // Remember this deployment (with its purpose) so it can be reloaded
+      // later even if the user forgets to copy the address.
+      addDeployedContract({
+        address: contractAddr,
+        purpose: purpose.trim(),
+        links,
+        deployedAt: new Date().toISOString(),
+      });
       setStep("done");
       onDeployed(contractAddr);
     } catch (err: any) {
@@ -201,6 +226,42 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
                   )}
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="purpose">
+                  What is this contract for?{" "}
+                  <span className="text-[var(--destructive)]">*</span>
+                </Label>
+                <Textarea
+                  id="purpose"
+                  value={purpose}
+                  onChange={(e) => setPurpose(e.target.value)}
+                  rows={2}
+                  placeholder="e.g. Freelance engagement — I build the website, Client pays 2000 GEN on acceptance"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  State the agreement you are formalizing. This purpose is stored
+                  with the deployment so both parties know what the contract is
+                  for.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="refLinks">Reference / source URLs (optional)</Label>
+                <Textarea
+                  id="refLinks"
+                  value={refLinks}
+                  onChange={(e) => setRefLinks(e.target.value)}
+                  rows={2}
+                  placeholder="https://... (up to 3, comma or newline separated)"
+                  className="font-mono text-xs"
+                />
+                {refLinks.trim() && links.length === 0 && (
+                  <p className="text-[11px] text-[var(--warning)]">
+                    No valid http(s) URLs recognized — add at least one or leave empty.
+                  </p>
+                )}
+              </div>
+
               {error && (
                 <div className="p-3 rounded-lg bg-[var(--destructive)]/10 border border-[var(--destructive)]/20">
                   <p className="text-sm text-[var(--destructive)]">{error}</p>
@@ -241,6 +302,24 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
                   <span className="font-mono text-xs truncate max-w-[200px]">
                     {partyB}
                   </span>
+                </div>
+                <div className="flex flex-col gap-1 border-t border-border pt-2 text-sm">
+                  <span className="text-muted-foreground">
+                    What it is for
+                  </span>
+                  <span className="text-foreground">{purpose.trim()}</span>
+                  {links.length > 0 && (
+                    <div className="pt-1 space-y-0.5">
+                      <span className="text-muted-foreground">
+                        Reference URLs
+                      </span>
+                      {links.map((u) => (
+                        <div key={u} className="font-mono text-xs break-all text-foreground">
+                          {u}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
