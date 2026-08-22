@@ -160,6 +160,14 @@ export function CommitPanel({ state, myRole, contractAddress, demoCommitTerms, d
         </span>
       </div>
 
+      {state.status === "ACTIVE" && (
+        <p className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+          The agreed terms stay <b>private</b> — only their digest is on-chain.
+          They are revealed only if a dispute opens, and the reveal is verified
+          against the committed hash (cannot be swapped).
+        </p>
+      )}
+
       {!address && (
         <Alert>
           <AlertTitle>Wallet required</AlertTitle>
