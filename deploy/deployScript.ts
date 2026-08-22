@@ -27,8 +27,6 @@ export default async function main(client: GenLayerClient<any>) {
       );
     }
 
-    await client.initializeConsensusSmartContract();
-
     const deployTransaction = await client.deployContract({
       code: contractCode,
       args: [partyA, partyB],

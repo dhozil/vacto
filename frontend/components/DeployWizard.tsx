@@ -63,8 +63,6 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
         account: address as `0x${string}`,
       });
 
-      await client.initializeConsensusSmartContract();
-
       const contractCode = await fetch(
         "/api/contract"
       ).then((r) => r.text()).catch(() => {
@@ -83,9 +81,19 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
         interval: 5000,
       });
 
-      const contractAddr =
-        (receipt as any).data?.contract_address ||
+      // GenLayer returns the created contract address in several receipt
+      // shapes depending on SDK/network; accept any of them (and never
+      // mis-read a non-address field).
+      const raw =
+        (receipt as any).contractAddress ??
+        (receipt as any).recipient ??
+        (receipt as any).to ??
+        (receipt as any).data?.contract_address ??
         (receipt as any).txDataDecoded?.contractAddress;
+      const contractAddr =
+        typeof raw === "string" && /^0x[a-fA-F0-9]{40}$/.test(raw)
+          ? raw
+          : "";
 
       if (!contractAddr) {
         throw new Error("Deployment succeeded but no contract address returned");
