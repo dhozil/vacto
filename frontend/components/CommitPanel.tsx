@@ -342,7 +342,7 @@ export function CommitPanel({ state, myRole, demoCommitTerms, demoCommitIdentity
                 variant="outline"
                 size="sm"
                 onClick={handleCommitIdentity}
-                disabled={!address || !myRole || isCommittingIdentity}
+                disabled={(!address && !isDemo) || !myRole || isCommittingIdentity}
               >
                 <ShieldCheck className="h-3.5 w-3.5 mr-1" />
                 {isCommittingIdentity

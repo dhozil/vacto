@@ -34,5 +34,10 @@ artifacts/
 /frontend/package-lock.json
 /frontend/tsconfig.tsbuildinfo
 
+# Playwright / E2E
+frontend/test-results/
+frontend/playwright-report/
+frontend/.playwright/
+
 # Misc
 /context

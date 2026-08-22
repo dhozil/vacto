@@ -48,6 +48,7 @@ export function DisputePanel({
     useRequestClarification();
   const { submitEvidence, isSubmittingEvidence } = useSubmitEvidence();
   const isDemo = !!demoOpenDispute;
+  const canAct = isDemo || !!address;
 
   const [terms, setTerms] = useState("");
   const [salt, setSalt] = useState("");
@@ -151,7 +152,7 @@ export function DisputePanel({
             onClick={() =>
               isDemo ? handleReveal() : setShowRevealConfirm(true)
             }
-            disabled={!address || !myRole || isOpening || !terms || !salt}
+            disabled={!canAct || !myRole || isOpening || !terms || !salt}
           >
             {isOpening ? "Revealing…" : "Reveal terms &amp; open dispute"}
           </Button>
@@ -288,7 +289,7 @@ export function DisputePanel({
                   variant="blue"
                   size="sm"
                   onClick={handleStatement}
-                  disabled={!address || isSubmitting || !statement.trim()}
+                  disabled={!canAct || isSubmitting || !statement.trim()}
                 >
                   <Send className="w-3 h-3" />
                   {isSubmitting
@@ -384,7 +385,7 @@ export function DisputePanel({
                         onClick={() =>
                           isDemo ? demoSubmitEvidence!([]) : submitEvidence({ urls: [] })
                         }
-                        disabled={!address || isSubmittingEvidence}
+                        disabled={!canAct || isSubmittingEvidence}
                       >
                         {isSubmittingEvidence
                           ? "Submitting…"
@@ -395,7 +396,7 @@ export function DisputePanel({
                       variant="outline"
                       size="sm"
                       onClick={handleSubmitEvidence}
-                      disabled={!address || isSubmittingEvidence || !validEvidenceDraft}
+                      disabled={!canAct || isSubmittingEvidence || !validEvidenceDraft}
                     >
                       {isSubmittingEvidence
                         ? "Submitting…"
@@ -439,7 +440,7 @@ export function DisputePanel({
                 onClick={() =>
                   isDemo ? demoRequestClarification!() : requestClarification()
                 }
-                disabled={!address || isClarifying}
+                disabled={!canAct || isClarifying}
               >
                 {isClarifying ? "Sending…" : "Request clarification"}
               </Button>
@@ -515,7 +516,7 @@ export function DisputePanel({
                   onClick={() =>
                     isDemo ? undefined : setShowForceResolveConfirm(true)
                   }
-                  disabled={!address || isForcing || isDemo}
+                  disabled={!canAct || isForcing || isDemo}
                 >
                   {isForcing ? "Forcing…" : "Force resolve"}
                 </Button>

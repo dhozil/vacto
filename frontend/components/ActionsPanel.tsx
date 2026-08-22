@@ -64,6 +64,7 @@ export function ActionsPanel({
   const { commitClauses, isRecording } = useCommitClauses();
   const { revealClause, isRevealing } = useRevealClause();
   const isDemo = !!demoRequestCompletion;
+  const canAct = isDemo || !!address;
 
   const [showForceClose, setShowForceClose] = useState(false);
   const [isForceClosing, setIsForceClosing] = useState(false);
@@ -161,7 +162,7 @@ export function ActionsPanel({
                     onClick={() =>
                       isDemo ? demoRequestCompletion!() : requestCompletion()
                     }
-                    disabled={!address || !myRole || isApproving || iApproved}
+                    disabled={!canAct || !myRole || isApproving || iApproved}
                   >
                     {isApproving
                       ? "Approving…"
@@ -200,7 +201,7 @@ export function ActionsPanel({
                       onClick={() =>
                         isDemo ? undefined : setShowForceClose(true)
                       }
-                      disabled={!address || isForcing || isDemo}
+                      disabled={!canAct || isForcing || isDemo}
                     >
                       {isForcing ? "Forcing…" : "Force close"}
                     </Button>
@@ -260,7 +261,7 @@ export function ActionsPanel({
                     ? demoRequestDispute!()
                     : setShowRequestDispute(true)
                 }
-                disabled={!address || !myRole || isRequesting}
+                disabled={!canAct || !myRole || isRequesting}
               >
                 {isRequesting ? "Requesting…" : "Request dispute"}
               </Button>
@@ -383,7 +384,7 @@ export function ActionsPanel({
                 onClick={() =>
                   isDemo ? demoRetractCommit!() : retractCommit()
                 }
-                disabled={!address || isRetractingCommit}
+                disabled={!canAct || isRetractingCommit}
               >
                 <Undo2 className="w-3 h-3" />
                 {isRetractingCommit ? "Retracting…" : "Retract my commit"}
@@ -396,7 +397,7 @@ export function ActionsPanel({
                 onClick={() =>
                   isDemo ? demoResetCommits!() : resetCommits()
                 }
-                disabled={isResetting || !address}
+                disabled={isResetting || !canAct}
               >
                 <RotateCcw className="w-3 h-3" />
                 {isResetting

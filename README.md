@@ -193,6 +193,14 @@ Set these env vars (see `frontend/.env.example`):
 - **63 frontend tests**: HMAC/commit utilities, clause hashing & templates,
   case-record export, transaction audit trail, deadline countdown, notification
   detector, demo state machine, and the professional sample agreement.
+- **Playwright E2E** (demo mode, no wallet/network):
+  ```
+  cd frontend
+  npx playwright install chromium
+  npm run test:e2e
+  ```
+  Covers home rendering, two-party private-close, full dispute incl. AI resolve,
+  and address-bar validation/reset.
 
 ## Status
 

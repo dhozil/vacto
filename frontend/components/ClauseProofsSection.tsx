@@ -37,6 +37,7 @@ export function ClauseProofsSection({
   const [proofIndex, setProofIndex] = useState("");
   const [proofClause, setProofClause] = useState("");
   const [proofRevealSalt, setProofRevealSalt] = useState("");
+  const canAct = isDemo || !!address;
 
   return (
     <div className="brand-card p-5 space-y-4">
@@ -80,7 +81,7 @@ export function ClauseProofsSection({
               <Button
                 variant="outline"
                 size="sm"
-                disabled={!address || isRecording || !proofTerms || !proofSalt}
+                disabled={!canAct || isRecording || !proofTerms || !proofSalt}
                 onClick={async () => {
                   const hashes = await computeClauseHashes(
                     proofTerms,
@@ -146,7 +147,7 @@ export function ClauseProofsSection({
             variant="blue"
             size="sm"
             disabled={
-              !address ||
+              !canAct ||
               !myRole ||
               isRevealing ||
               proofIndex === "" ||
