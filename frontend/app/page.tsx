@@ -20,6 +20,7 @@ import { StateTerminal } from "@/components/StateTerminal";
 import { AddressDisplay } from "@/components/AddressDisplay";
 import { DeployWizard } from "@/components/DeployWizard";
 import { AuditTrail } from "@/components/AuditTrail";
+import { ContractVerifier } from "@/components/ContractVerifier";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Lock, Unlock, Loader2, Landmark, Rocket, Play, StopCircle, RefreshCw, Users, FileQuestion } from "lucide-react";
@@ -356,6 +357,7 @@ export default function Home() {
               {/* Right rail */}
               <aside className="space-y-5 lg:sticky lg:top-24 lg:self-start">
                 <CaseOverview state={state} myRole={myRole} />
+                <ContractVerifier state={state} myRole={myRole} />
                 <PrivacyPanel state={state} />
                 <StateTerminal state={state} />
                 {!demo.isActive && (
