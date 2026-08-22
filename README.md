@@ -65,6 +65,18 @@ Any other (non-Pacto) contract — or an address from a different network — wi
 **not** load. Deploy the contract first (`genlayer deploy` or the in-app Deploy
 Wizard), then paste the returned address.
 
+### Reference instances (owner tests on GenLayer Studio)
+
+Deployed by the project owners on the free Studio testnet (parties fixed to the
+owner test wallets). Use them to inspect contract contents in the app — each is
+an isolated instance, not shared by users:
+
+| Address | State |
+|---|---|
+| `0x738e716A568D03BB9223619017961C061870D70a` | Full lifecycle: commits, identity, **ack A+B**, dispute → `RESOLVED` (DRAW) |
+| `0x76d675AdAFa1fAFa269C6764a8266dD9b081BF3A` | Commits + identity + evidence, dispute → `RESOLVED` (DRAW) |
+| `0x8Dcf92f47Dc5D70aCDa7c6c9bb6Ac9bf139c2C08` | Private close → `RESOLVED` (terms never revealed) |
+
 ## Features
 
 | Area | What Vacto gives you |
