@@ -95,6 +95,14 @@ export function CommitPanel({ state, myRole, contractAddress, demoCommitTerms, d
   const hashToSend = pastedHash.trim() || computedHash;
   const canSubmit = canCommit && !!hashToSend;
 
+  // Once the matter is active/closed the commitment is locked on-chain — none
+  // of these inputs can send a transaction any more, so keep them read-only
+  // in the UI too (prevents the illusion that you can re-commit).
+  const locked =
+    state.status === "ACTIVE" ||
+    state.status === "DISPUTED" ||
+    state.status === "RESOLVED";
+
   const copyHash = async (value: string) => {
     await navigator.clipboard.writeText(value);
     setCopied(true);
@@ -214,6 +222,7 @@ export function CommitPanel({ state, myRole, contractAddress, demoCommitTerms, d
             placeholder="1. AGREEMENT AND PARTIES. This Agreement is entered into between Provider and Client…"
             rows={terms.length > 1200 ? 10 : 3}
             maxLength={4096}
+            disabled={locked}
             aria-describedby="terms-char-limit"
           />
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -224,6 +233,7 @@ export function CommitPanel({ state, myRole, contractAddress, demoCommitTerms, d
               type="button"
               variant="outline"
               size="sm"
+              disabled={locked}
               onClick={() => {
                 const sample = loadProfessionalSample(true);
                 setTerms(sample.terms.slice(0, 4096));
@@ -245,12 +255,14 @@ export function CommitPanel({ state, myRole, contractAddress, demoCommitTerms, d
               onChange={(e) => setSalt(e.target.value)}
               placeholder={`Share the exact salt with your counterparty (min ${MIN_SALT_LENGTH} chars)`}
               className="font-mono flex-1"
+              disabled={locked}
             />
             <Button
               type="button"
               variant="blue"
               onClick={() => setSalt(generateSalt())}
               title="Generate a random salt"
+              disabled={locked}
             >
               <Wand2 className="w-4 h-4" />
             </Button>
@@ -275,6 +287,7 @@ export function CommitPanel({ state, myRole, contractAddress, demoCommitTerms, d
             onChange={(e) => setPastedHash(e.target.value)}
             placeholder="64-char sha-256 hex from your counterparty"
             className="font-mono"
+            disabled={locked}
           />
         </div>
 
