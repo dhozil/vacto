@@ -38,9 +38,11 @@ export function ContractVerifier({ state, myRole, demoAcknowledgeParty }: Props)
   const otherAcked =
     (myRole === "A" && state.ack_b === "1") ||
     (myRole === "B" && state.ack_a === "1");
+  const bothCommitted = state.commit_a !== "" && state.commit_b !== "";
   const canAck =
     !!myRole &&
     !iAcked &&
+    bothCommitted &&
     (state.status === "CREATED" ||
       state.status === "PARTIAL" ||
       state.status === "ACTIVE");
@@ -210,7 +212,17 @@ export function ContractVerifier({ state, myRole, demoAcknowledgeParty }: Props)
         </div>
       )}
 
-      {digest && (
+      {digest && !myCommit && (
+        <div className="mt-3 flex items-start gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+          <KeyRound className="h-4 w-4 shrink-0" />
+          <span>
+            No on-chain commitment for you yet. Commit your hash first — then
+            come back here to verify &amp; acknowledge.
+          </span>
+        </div>
+      )}
+
+      {digest && myCommit && (
         <div
           className={`mt-3 flex items-start gap-2 rounded-lg border px-3 py-2 text-xs ${
             allVerified
