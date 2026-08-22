@@ -39,6 +39,7 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
   const [purpose, setPurpose] = useState("");
   const [refLinks, setRefLinks] = useState("");
   const [deployedAddress, setDeployedAddress] = useState("");
+  const [deployTxHash, setDeployTxHash] = useState("");
   const [error, setError] = useState("");
   const [isDeploying, setIsDeploying] = useState(false);
 
@@ -91,6 +92,7 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
         code: new TextEncoder().encode(contractCode),
         args: [address, partyB],
       });
+      setDeployTxHash(String(txHash ?? ""));
 
       const receipt = await client.waitForTransactionReceipt({
         hash: txHash as any,
@@ -387,18 +389,32 @@ export function DeployWizard({ isOpen, onClose, onDeployed }: DeployWizardProps)
                 <button
                   onClick={copyAddress}
                   className="p-1 cursor-pointer rounded hover:bg-muted transition-colors"
+                  aria-label="Copy contract address"
                 >
                   <Copy className="h-4 w-4" />
                 </button>
                 <a
-                  href={`https://explorer-studio.genlayer.com/contracts/${deployedAddress}`}
+                  href={`https://explorer-studio.genlayer.com/address/${deployedAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-1 cursor-pointer rounded hover:bg-muted transition-colors"
+                  aria-label="Open contract on the explorer"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </div>
+
+              {deployTxHash && (
+                <a
+                  href={`https://explorer-studio.genlayer.com/tx/${deployTxHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  View deployment transaction
+                </a>
+              )}
 
               <div className="flex justify-center gap-2 pt-2">
                 <Button onClick={close}>Close</Button>
