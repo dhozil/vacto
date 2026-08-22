@@ -165,80 +165,80 @@ export function ContractAddressBar({ value, onChange }: Props) {
         </div>
       </div>
 
-      {showHistory && (deployed.length > 0 || history.length > 0) && (
+      {deployed.length > 0 && (
         <div className="mt-3 space-y-2">
-          {deployed.length > 0 && (
-            <>
-              <p className="text-xs text-muted-foreground">
-                Your deployments:
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {deployed.map((d) => (
-                  <div
-                    key={d.address}
-                    className="flex items-center gap-1 px-2 py-1 rounded border border-[var(--accent)]/30 bg-[var(--accent)]/5 text-xs"
-                  >
-                    <button
-                      onClick={() => {
-                        setDraft(d.address);
-                        apply(d.address);
-                        setShowHistory(false);
-                      }}
-                      title={d.purpose}
-                      className="font-mono cursor-pointer hover:text-foreground transition-colors"
-                    >
-                      {d.address.slice(0, 6)}...{d.address.slice(-4)}
-                    </button>
-                    {d.purpose && (
-                      <span className="ml-1 truncate max-w-[140px] text-muted-foreground">
-                        · {d.purpose}
-                      </span>
-                    )}
-                    <button
-                      onClick={() => {
-                        removeDeployedContract(d.address);
-                        setDeployed(getDeployedContracts());
-                      }}
-                      aria-label="Forget this deployment"
-                      className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
+          <p className="text-xs font-medium text-muted-foreground">
+            Your deployments
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {deployed.map((d) => (
+              <div
+                key={d.address}
+                className="flex items-center gap-1 px-2 py-1 rounded border border-[var(--accent)]/30 bg-[var(--accent)]/5 text-xs"
+              >
+                <button
+                  onClick={() => {
+                    setDraft(d.address);
+                    apply(d.address);
+                  }}
+                  title={d.purpose}
+                  className="font-mono cursor-pointer hover:text-foreground transition-colors"
+                >
+                  {d.address.slice(0, 6)}...{d.address.slice(-4)}
+                </button>
+                {d.purpose && (
+                  <span className="ml-1 truncate max-w-[160px] text-muted-foreground">
+                    · {d.purpose}
+                  </span>
+                )}
+                <button
+                  onClick={() => {
+                    removeDeployedContract(d.address);
+                    setDeployed(getDeployedContracts());
+                  }}
+                  aria-label="Forget this deployment"
+                  className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </div>
-            </>
-          )}
-          {history.length > 0 && (
-            <>
-              <p className="text-xs text-muted-foreground">Recent contracts:</p>
-              <div className="flex flex-wrap gap-2">
-                {history.map((addr) => (
-                  <div
-                    key={addr}
-                    className="flex items-center gap-1 px-2 py-1 rounded border border-border bg-muted/50 text-xs"
-                  >
-                    <button
-                      onClick={() => {
-                        setDraft(addr);
-                        apply(addr);
-                        setShowHistory(false);
-                      }}
-                      className="font-mono cursor-pointer hover:text-foreground transition-colors"
-                    >
-                      {addr.slice(0, 6)}...{addr.slice(-4)}
-                    </button>
-                    <button
-                      onClick={() => removeFromHistory(addr)}
-                      className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                ))}
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            Contracts you deployed from this browser are remembered here — click
+            to load, ✕ to remove.
+          </p>
+        </div>
+      )}
+
+      {showHistory && history.length > 0 && (
+        <div className="mt-3 space-y-2">
+          <p className="text-xs text-muted-foreground">Recent contracts:</p>
+          <div className="flex flex-wrap gap-2">
+            {history.map((addr) => (
+              <div
+                key={addr}
+                className="flex items-center gap-1 px-2 py-1 rounded border border-border bg-muted/50 text-xs"
+              >
+                <button
+                  onClick={() => {
+                    setDraft(addr);
+                    apply(addr);
+                    setShowHistory(false);
+                  }}
+                  className="font-mono cursor-pointer hover:text-foreground transition-colors"
+                >
+                  {addr.slice(0, 6)}...{addr.slice(-4)}
+                </button>
+                <button
+                  onClick={() => removeFromHistory(addr)}
+                  className="p-0.5 cursor-pointer hover:text-[var(--destructive)] transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </div>
-            </>
-          )}
+            ))}
+          </div>
         </div>
       )}
 
@@ -254,7 +254,8 @@ export function ContractAddressBar({ value, onChange }: Props) {
           Deploy{" "}
           <code className="font-mono">contracts/private_p2p_contract.py</code>{" "}
           with <code className="font-mono">genlayer deploy</code>, then paste its
-          address above.
+          address above — or use the <b>Deploy Wizard</b> button above; deployments
+          made there are listed under "Your deployments" and can be reloaded anytime.
         </p>
       ) : null}
     </section>
