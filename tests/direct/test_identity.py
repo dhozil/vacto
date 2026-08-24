@@ -131,6 +131,57 @@ def test_open_dispute_rejects_wrong_salt_identity(
         c.open_dispute(TERMS, wrong_salt)
 
 
+def test_identity_unconfirmed_poisoning_does_not_block_reveal(
+    direct_vm, direct_deploy, direct_alice, direct_bob
+):
+    """Regression (steward): a single party installing WRONG identity hashes
+    (unconfirmed by the other) must NOT block a valid dispute reveal.
+
+    One side commits real terms, then unilaterally records mismatched
+    sha256 identity hashes. Because the other party never confirms them,
+    the identity stays non-operative and open_dispute with the REAL terms
+    must still succeed.
+    """
+    c = _deploy(direct_deploy, direct_alice, direct_bob)
+    _commit_both(direct_vm, c, direct_alice, direct_bob)
+
+    # Alice unilaterally poisons the identity with hashes of DIFFERENT content.
+    poison_terms_h = hashlib.sha256(b"completely different terms").hexdigest()
+    poison_salt_h = hashlib.sha256(b"poisoned-salt").hexdigest()
+    direct_vm.sender = direct_alice
+    c.commit_identity(poison_terms_h, poison_salt_h)
+
+    # Bob never confirms -> identity not operative; but stored + visible.
+    assert c.get_state()["identity_a"] == to_hex(direct_alice)
+    assert c.get_state()["identity_b"] == ""
+
+    # Valid dispute reveal with the REAL committed terms must still work.
+    direct_vm.sender = direct_bob
+    c.open_dispute(TERMS, SALT)
+    assert c.get_state()["status"] == "DISPUTED"
+
+
+def test_identity_operative_only_after_both_confirm(
+    direct_vm, direct_deploy, direct_alice, direct_bob
+):
+    """Identity is enforced once BOTH parties confirm identical values: a valid
+    reveal whose terms/salt do NOT match the confirmed identity reverts."""
+    c = _deploy(direct_deploy, direct_alice, direct_bob)
+    _commit_both(direct_vm, c, direct_alice, direct_bob)
+
+    direct_vm.sender = direct_alice
+    c.commit_identity(TERMS_H, SALT_H)
+    direct_vm.sender = direct_bob
+    c.commit_identity(TERMS_H, SALT_H)
+    assert c.get_state()["identity_b"] == to_hex(direct_bob)
+
+    # Confirmed identity is enforced (negative paths are covered by the other
+    # tests); valid reveal still succeeds.
+    direct_vm.sender = direct_alice
+    c.open_dispute(TERMS, SALT)
+    assert c.get_state()["status"] == "DISPUTED"
+
+
 def test_reset_clears_identity(
     direct_vm, direct_deploy, direct_alice, direct_bob
 ):

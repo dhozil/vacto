@@ -89,6 +89,13 @@ def test_dispute_reveals_terms_then_arbitrates(default_account, accounts):
         )
     )
 
+    # Both parties complete their evidence input before resolution.
+    assert tx_execution_succeeded(contract.submit_evidence(args=[[]], account=party_a))
+    assert tx_execution_succeeded(contract.submit_evidence(args=[[]], account=party_b))
+    state = contract.get_state(args=[])
+    assert state["evidence_reviewed_a"] == "1"
+    assert state["evidence_reviewed_b"] == "1"
+
     # AI arbitration with multi-validator consensus.
     result = contract.resolve_dispute(args=[], account=party_a, wait_interval=10000, wait_retries=15)
     assert tx_execution_succeeded(result)

@@ -83,6 +83,8 @@ export function ContractVerifier({
 
   const hasDigest = !!digest;
   const commitMatches = hasDigest && !!myCommit && digest === myCommit;
+  const identityOperative = !!(state.identity_a && state.identity_b);
+  const identityAvailable = !!state.terms_sha256 || !!state.salt_sha256;
   const identityTerms =
     hasDigest && !!state.terms_sha256 && termsH === state.terms_sha256;
   const identitySalt =
@@ -90,8 +92,8 @@ export function ContractVerifier({
   const allVerified =
     hasDigest &&
     commitMatches &&
-    (!state.terms_sha256 || identityTerms) &&
-    (!state.salt_sha256 || identitySalt);
+    (!identityAvailable ||
+      (identityOperative && identityTerms && identitySalt));
 
   const Row = ({
     ok,
@@ -192,27 +194,31 @@ export function ContractVerifier({
             }
           />
           <Row
-            ok={identityTerms}
-            neutral={!state.terms_sha256}
+            ok={identityOperative ? identityTerms : true}
+            neutral={!state.terms_sha256 || !identityOperative}
             label="Terms identity (sha256)"
             detail={
-              state.terms_sha256
-                ? termsH === state.terms_sha256
-                  ? "matches on-chain identity"
-                  : "does NOT match on-chain identity"
-                : "identity not committed on this contract"
+              !state.terms_sha256
+                ? "identity not committed on this contract"
+                : identityOperative
+                  ? identityTerms
+                    ? "matches on-chain identity"
+                    : "does NOT match on-chain identity"
+                  : "recorded, awaiting counterparty confirmation"
             }
           />
           <Row
-            ok={identitySalt}
-            neutral={!state.salt_sha256}
+            ok={identityOperative ? identitySalt : true}
+            neutral={!state.salt_sha256 || !identityOperative}
             label="Salt identity (sha256)"
             detail={
-              state.salt_sha256
-                ? saltH === state.salt_sha256
-                  ? "matches on-chain identity"
-                  : "does NOT match on-chain identity"
-                : "identity not committed on this contract"
+              !state.salt_sha256
+                ? "identity not committed on this contract"
+                : identityOperative
+                  ? identitySalt
+                    ? "matches on-chain identity"
+                    : "does NOT match on-chain identity"
+                  : "recorded, awaiting counterparty confirmation"
             }
           />
         </div>

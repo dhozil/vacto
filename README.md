@@ -137,6 +137,7 @@ return my_winner in ("A", "B", "DRAW") and my_winner == their_winner
 
 - Commit digests are validated `64-hex`; all inputs are length-capped to bound gas and prompt size.
 - Statements and evidence are **bound to the party** that submits them — nobody can overwrite the other side.
+- Identity commitments (`terms_sha256`/`salt_sha256`) only become **operative once BOTH parties confirm identical values** — a single party installing mismatched hashes can never block a valid dispute reveal.
 - Cooperative resolution is **two-party gated**; a lone party can never bury a dispute.
 - The AI prompt treats all inputs as untrusted data and must cite fetched evidence to credit a claim — if a page is unavailable it falls back to the terms and may rule `DRAW` rather than guess.
 - Time comes from the deterministic transaction timestamp (`datetime` patched per tx), never the node clock.

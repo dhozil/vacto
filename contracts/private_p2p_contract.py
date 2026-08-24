@@ -241,6 +241,12 @@ class PrivateP2PContract(gl.Contract):
         sender = self._sender()
         return sender == self.party_a or sender == self.party_b
 
+    def _identity_confirmed(self) -> bool:
+        """Identity commitments only become operative after BOTH parties have
+        recorded the identical values. A single party's (possibly poisoned)
+        submission is ignored for dispute verification."""
+        return self.identity_a != "" and self.identity_b != ""
+
     def _commit_hash(self, terms: str, salt: str) -> str:
         # Keyed commit: HMAC-SHA256 with the salt as the secret key. The salt is
         # a high-entropy value shared off-chain, so an on-chain observer cannot
@@ -768,19 +774,22 @@ class PrivateP2PContract(gl.Contract):
 
         if self._commit_hash(terms, salt) != self.commit_a:
             raise gl.vm.UserError("Revealed terms do not match the committed hash")
-        # Re-verify against the public identity commitments (if recorded):
-        # the revealed terms and salt must match sha256 stored on-chain, so a
-        # dispute can re-read and validate purely from chain state — immutable.
-        if self.terms_sha256 != "":
-            if hashlib.sha256(terms.encode("utf-8")).hexdigest() != self.terms_sha256:
-                raise gl.vm.UserError(
-                    "Revealed terms do not match the committed identity (sha256)"
-                )
-        if self.salt_sha256 != "":
-            if hashlib.sha256(salt.encode("utf-8")).hexdigest() != self.salt_sha256:
-                raise gl.vm.UserError(
-                    "Revealed salt does not match the committed identity (sha256)"
-                )
+        # Re-verify against the public identity commitments (if CONFIRMED by both
+        # parties): the revealed terms and salt must match the sha256 stored
+        # on-chain, so a dispute can re-read and validate purely from chain state.
+        # A unconfirmed (single-party) identity - e.g. a poisoned hash installed
+        # by one side - is never enforced, so it can never block a valid reveal.
+        if self._identity_confirmed():
+            if self.terms_sha256 != "":
+                if hashlib.sha256(terms.encode("utf-8")).hexdigest() != self.terms_sha256:
+                    raise gl.vm.UserError(
+                        "Revealed terms do not match the committed identity (sha256)"
+                    )
+            if self.salt_sha256 != "":
+                if hashlib.sha256(salt.encode("utf-8")).hexdigest() != self.salt_sha256:
+                    raise gl.vm.UserError(
+                        "Revealed salt does not match the committed identity (sha256)"
+                    )
 
         self.terms = terms
         self.revealed_by = self._sender()
